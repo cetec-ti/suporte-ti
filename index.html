@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suporte TI — Cetec Palmas | Gestão de Equipamentos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root {
+  --navy:   #0d1b2a;
+  --navy2:  #162032;
+  --blue:   #1d6fdb;
+  --blue-l: #3b8ef0;
+  --cyan:   #00c2cb;
+  --bg:     #f4f6fb;
+  --white:  #ffffff;
+  --border: #e2e8f0;
+  --text:   #1a2332;
+  --muted:  #64748b;
+  --success:#16a34a;
+  --danger: #dc2626;
+  --radius: 12px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── HEADER ── */
+header{background:var(--navy);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--cyan));border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;}
+.logo-text{color:#fff;font-size:15px;font-weight:600;letter-spacing:0.2px;}
+.logo-text span{color:var(--cyan);font-weight:300;}
+.badge-env{background:rgba(0,194,203,0.15);color:var(--cyan);font-size:11px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:20px;border:1px solid rgba(0,194,203,0.3);}
+
+/* ── LAYOUT ── */
+.layout{display:flex;flex:1;max-width:1100px;margin:40px auto;width:100%;gap:28px;padding:0 24px;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;}
+.sidebar-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow);}
+.sidebar-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.eq-list{display:flex;flex-direction:column;gap:4px;}
+.eq-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:400;color:var(--text);cursor:default;transition:background .15s;}
+.eq-item:hover{background:var(--bg);}
+.eq-item .eq-ico{font-size:18px;width:28px;text-align:center;}
+.info-box{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:var(--radius);padding:20px;color:#fff;}
+.info-box h4{font-size:13px;font-weight:600;margin-bottom:8px;color:var(--cyan);}
+.info-box p{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.65);}
+.sla-list{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+.sla-row{display:flex;justify-content:space-between;font-size:11px;}
+.sla-row span:first-child{color:rgba(255,255,255,0.55);}
+.sla-row span:last-child{color:var(--cyan);font-family:'DM Mono',monospace;}
+
+/* ── MAIN ── */
+.main{flex:1;min-width:0;}
+
+/* ── PROGRESS ── */
+.progress-bar{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:20px 28px;margin-bottom:24px;box-shadow:var(--shadow);}
+.steps{display:flex;align-items:center;gap:0;}
+.step{display:flex;align-items:center;gap:8px;flex:1;}
+.step-num{width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+.step-num.done{background:var(--success);color:#fff;}
+.step-num.active{background:var(--blue);color:#fff;box-shadow:0 0 0 4px rgba(29,111,219,0.2);}
+.step-num.idle{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+.step-label{font-size:12px;font-weight:500;transition:color .3s;}
+.step-label.active{color:var(--blue);}
+.step-label.idle{color:var(--muted);}
+.step-label.done{color:var(--success);}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 8px;border-radius:2px;transition:background .3s;}
+.step-line.done{background:var(--success);}
+
+/* ── CARDS ── */
+.form-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);padding:32px;box-shadow:var(--shadow);}
+.card-header{margin-bottom:28px;}
+.card-title{font-size:20px;font-weight:600;color:var(--text);}
+.card-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+
+/* ── FORM ELEMENTS ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:12px;font-weight:600;color:var(--text);letter-spacing:0.3px;}
+label span.req{color:var(--danger);}
+input,select,textarea{border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--bg);transition:border .2s,box-shadow .2s;outline:none;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,111,219,0.12);background:#fff;}
+input.error,select.error,textarea.error{border-color:var(--danger);}
+textarea{resize:vertical;min-height:90px;}
+.field-hint{font-size:11px;color:var(--muted);}
+
+/* ── EQUIPMENT GRID ── */
+.eq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px;}
+.eq-card{border:2px solid var(--border);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);}
+.eq-card:hover{border-color:var(--blue-l);background:#f0f6ff;}
+.eq-card.selected{border-color:var(--blue);background:#eef4ff;box-shadow:0 0 0 3px rgba(29,111,219,0.1);}
+.eq-card .eq-emoji{font-size:28px;margin-bottom:6px;display:block;}
+.eq-card .eq-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;}
+
+/* ── URGENCY ── */
+.urgency-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.urg-card{border:2px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all .2s;background:var(--bg);}
+.urg-card .urg-label{font-size:12px;font-weight:600;}
+.urg-card .urg-desc{font-size:11px;color:var(--muted);margin-top:2px;}
+.urg-card.sel-baixa{border-color:#16a34a;background:#f0fdf4;}
+.urg-card.sel-media{border-color:#d97706;background:#fffbeb;}
+.urg-card.sel-alta{border-color:#dc2626;background:#fef2f2;}
+
+/* ── REVIEW ── */
+.review-table{width:100%;border-collapse:collapse;font-size:13px;}
+.review-table tr td{padding:10px 0;border-bottom:1px solid var(--bg);}
+.review-table tr:last-child td{border-bottom:none;}
+.review-table td:first-child{color:var(--muted);font-weight:500;width:40%;}
+.review-table td:last-child{color:var(--text);font-weight:600;}
+.req-number-preview{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--blue);background:#eef4ff;padding:10px 16px;border-radius:8px;display:inline-block;margin-bottom:20px;border:1px solid rgba(29,111,219,0.2);}
+
+/* ── BUTTONS ── */
+.btn-row{display:flex;justify-content:flex-end;gap:10px;margin-top:28px;}
+.btn{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .2s;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--muted);background:var(--bg);}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-l);}
+.btn-primary:disabled{background:var(--muted);cursor:not-allowed;}
+.btn-success{background:var(--success);color:#fff;}
+
+/* ── SUCCESS SCREEN ── */
+.success-screen{display:none;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;}
+.success-icon{width:72px;height:72px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.success-icon svg{width:36px;height:36px;stroke:var(--success);stroke-width:2.5;fill:none;}
+.success-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--blue);background:#eef4ff;padding:10px 24px;border-radius:8px;display:inline-block;margin:12px 0;border:1px solid rgba(29,111,219,0.2);}
+.success-title{font-size:22px;font-weight:700;margin-bottom:8px;}
+.success-msg{font-size:14px;color:var(--muted);max-width:400px;line-height:1.7;}
+
+/* ── SETUP BANNER ── */
+.setup-banner{background:#fffbeb;border:1.5px solid #fcd34d;border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start;}
+.setup-banner .icon{font-size:20px;flex-shrink:0;}
+.setup-banner h4{font-size:13px;font-weight:600;color:#92400e;margin-bottom:4px;}
+.setup-banner p{font-size:12px;color:#78350f;line-height:1.6;}
+.setup-banner code{background:#fef3c7;padding:1px 5px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;}
+
+/* ── STEP VISIBILITY ── */
+.step-pane{display:none;}
+.step-pane.active{display:block;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.form-card,.progress-bar{animation:fadeUp .4s ease both;}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:24px;font-size:12px;color:var(--muted);}
+
+/* ── MODAL DE VALIDAÇÃO ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,20,40,0.45);backdrop-filter:blur(3px);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal-box{background:#fff;border-radius:16px;padding:32px 28px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.18);transform:translateY(20px) scale(0.97);transition:transform .25s;text-align:center;}
+.modal-overlay.show .modal-box{transform:translateY(0) scale(1);}
+.modal-icon{width:52px;height:52px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.modal-icon svg{width:26px;height:26px;stroke:var(--danger);stroke-width:2.5;fill:none;}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.modal-msg{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;}
+.modal-msg strong{color:var(--danger);font-weight:600;}
+.modal-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px 32px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .2s;}
+.modal-icon.erro{background:#fef2f2;}
+.modal-icon.erro svg{stroke:var(--danger);}
+.modal-icon.aviso{background:#fffbeb;}
+.modal-icon.aviso svg{stroke:#d97706;}
+.modal-title.erro{color:var(--danger);}
+.modal-btn.erro{background:var(--danger);}
+.modal-btn.erro:hover{background:#b91c1c;}
+
+@media(max-width:768px){
+  .layout{flex-direction:column;padding:0 16px;}
+  .sidebar{width:100%;}
+  .eq-grid{grid-template-columns:repeat(2,1fr);}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ CONFIGURAÇÃO EMAILJS ═══
+  ANTES DE USAR:
+  1. Acesse https://www.emailjs.com e crie uma conta gratuita
+  2. Em "Email Services", conecte seu e-mail (Gmail/Outlook) → anote o SERVICE ID
+  3. Em "Email Templates", crie 2 templates:
+     - Template p/ GESTOR  (anote o TEMPLATE ID) — veja variáveis abaixo
+     - Template p/ USUÁRIO (anote o TEMPLATE ID) — confirmação de recebimento
+  4. Em "Account" → API Keys → copie sua PUBLIC KEY
+  5. Substitua os valores nas linhas marcadas com ← SUBSTITUA abaixo
+  ══════════════════════════════ -->
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    </div>
+    <div class="logo-text">Suporte TI <span>Cetec Palmas</span> — Gestão de Equipamentos</div>
+  </div>
+  <div class="badge-env">v1.0</div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-title">Equipamentos</div>
+      <div class="eq-list">
+        <div class="eq-item"><span class="eq-ico">💻</span> Notebook / Computador</div>
+        <div class="eq-item"><span class="eq-ico">📽️</span> Projetor</div>
+        <div class="eq-item"><span class="eq-ico">🖱️</span> Mouse</div>
+        <div class="eq-item"><span class="eq-ico">⌨️</span> Teclado</div>
+        <div class="eq-item"><span class="eq-ico">🥽</span> Óculos de Realidade Aumentada</div>
+        <div class="eq-item"><span class="eq-ico">🎧</span> Fone de Ouvido</div>
+        <div class="eq-item"><span class="eq-ico">📦</span> Outros</div>
+      </div>
+    </div>
+    <div class="info-box">
+      <h4>Prazo de Resposta</h4>
+      <p>Após o envio, a equipe de TI analisará sua solicitação e retornará por e-mail.</p>
+      <div class="sla-list">
+        <div class="sla-row"><span>🔴 Alta prioridade</span><span>1 dia útil</span></div>
+        <div class="sla-row"><span>🟡 Média prioridade</span><span>3 dias úteis</span></div>
+        <div class="sla-row"><span>🟢 Baixa prioridade</span><span>5 dias úteis</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+
+
+    <!-- PROGRESS -->
+    <div class="progress-bar">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num active" id="sn1">1</div>
+          <div class="step-label active" id="sl1">Identificação</div>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="step">
+          <div class="step-num idle" id="sn2">2</div>
+          <div class="step-label idle" id="sl2">Equipamento</div>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="step">
+          <div class="step-num idle" id="sn3">3</div>
+          <div class="step-label idle" id="sl3">Revisão & Envio</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="form-card">
+
+      <!-- ── STEP 1 ── -->
+      <div class="step-pane active" id="pane1">
+        <div class="card-header">
+          <div class="card-title">Dados do Solicitante</div>
+          <div class="card-sub">Preencha suas informações para que possamos identificar a solicitação.</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Nome completo <span class="req">*</span></label>
+            <input type="text" id="f_nome" placeholder="Ex.: Maria Silva">
+          </div>
+          <div class="form-group">
+            <label>E-mail <span class="req">*</span></label>
+            <input type="email" id="f_email" placeholder="seu@email.com">
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" id="f_ramal" placeholder="Ex.: (63) 99999-9999">
+          </div>
+          <div class="form-group">
+            <label>Setor / Departamento <span class="req">*</span></label>
+            <select id="f_setor">
+              <option value="">Selecione...</option>
+              <option>Administrativo</option>
+              <option>COPED</option>
+              <option>STI</option>
+              <option>SAC</option>
+              <option>Docentes</option>
+              <option>Gerência</option>
+              <option>Secretaria</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipo de Atendimento <span class="req">*</span></label>
+            <select id="f_unidade">
+              <option value="">Selecione...</option>
+              
+              
+              
+              <option>Uso Interno (Cetec)</option>
+              <option>Uso Externo</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="goStep(2)">Próximo →</button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2 ── -->
+      <div class="step-pane" id="pane2">
+        <div class="card-header">
+          <div class="card-title">Equipamento Solicitado</div>
+          <div class="card-sub">Selecione o tipo de equipamento e descreva sua necessidade.</div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px;">
+          <label>Tipo de equipamento <span class="req">*</span></label>
+          <div class="eq-grid" id="eqGrid">
+            <div class="eq-card" onclick="selectEq(this,'Notebook / Computador')">
+              <span class="eq-emoji">💻</span><div class="eq-name">Notebook / Computador</div>
+            </div>
+            <div class="eq-card" onclick="selectEq(this,'Projetor')">
+              <span class="eq-emoji">📽️</span><div class="eq-name">Projetor</div>
+            </div>
+            <div class="eq-card" onclick="selectEq(this,'Mouse')">
+              <span class="eq-emoji">🖱️</span><div class="eq-name">Mouse</div>
+            </div>
+            <div class="eq-card" onclick="selectEq(this,'Teclado')">
+              <span class="eq-emoji">⌨️</span><div class="eq-name">Teclado</div>
+            </div>
+            <div class="eq-card" onclick="selectEq(this,'Óculos de Realidade Aumentada')">
+              <span class="eq-emoji">🥽</span><div class="eq-name">Óculos de R. Aumentada</div>
+            </div>
+            <div class="eq-card" onclick="selectEq(this,'Fone de Ouvido')">
+              <span class="eq-emoji">🎧</span><div class="eq-name">Fone de Ouvido</div>
+            </div>
+            <div class="eq-card" onclick="selectEq(this,'Outros')">
+              <span class="eq-emoji">📦</span><div class="eq-name">Outros</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Quantidade <span class="req">*</span></label>
+            <input type="number" id="f_qtd" min="1" max="5" value="1">
+            <span class="field-hint">Máximo de 5 itens por solicitação.</span>
+          </div>
+          <div class="form-group">
+            <label>Especificação / Modelo desejado</label>
+            <input type="text" id="f_modelo" placeholder="Ex.: i5, 8GB RAM, teclado ABNT2...">
+          </div>
+          <div class="form-group full">
+            <label>Justificativa <span class="req">*</span></label>
+            <textarea id="f_justificativa" placeholder="Descreva o motivo da solicitação e como o equipamento será utilizado..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Urgência <span class="req">*</span></label>
+            <div class="urgency-grid">
+              <div class="urg-card" onclick="selectUrg(this,'Baixa','🟢')">
+                <div class="urg-label">🟢 Baixa</div>
+                <div class="urg-desc">Sem impacto imediato nas atividades (planejamento futuro)</div>
+              </div>
+              <div class="urg-card" onclick="selectUrg(this,'Média','🟡')">
+                <div class="urg-label">🟡 Média</div>
+                <div class="urg-desc">Atividade em andamento, mas ainda executável sem o equipamento</div>
+              </div>
+              <div class="urg-card" onclick="selectUrg(this,'Alta','🔴')">
+                <div class="urg-label">🔴 Alta</div>
+                <div class="urg-desc">Operação paralisada ou com risco real de prejuízo imediato</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goStep(1)">← Voltar</button>
+          <button class="btn btn-primary" onclick="goStep(3)">Revisar →</button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3 ── -->
+      <div class="step-pane" id="pane3">
+        <div class="card-header">
+          <div class="card-title">Revisão da Solicitação</div>
+          <div class="card-sub">Confira os dados antes de enviar. Um número de protocolo será gerado automaticamente.</div>
+        </div>
+
+        <div class="req-number-preview" id="previewNum">—</div>
+
+        <table class="review-table">
+          <tr><td>Solicitante</td><td id="rv_nome">—</td></tr>
+          <tr><td>E-mail</td><td id="rv_email">—</td></tr>
+          <tr><td>Setor</td><td id="rv_setor">—</td></tr>
+          <tr><td>Unidade</td><td id="rv_unidade">—</td></tr>
+          <tr><td>Ramal</td><td id="rv_ramal">—</td></tr>
+          <tr><td>Equipamento</td><td id="rv_eq">—</td></tr>
+          <tr><td>Quantidade</td><td id="rv_qtd">—</td></tr>
+          <tr><td>Especificação</td><td id="rv_modelo">—</td></tr>
+          <tr><td>Urgência</td><td id="rv_urg">—</td></tr>
+          <tr><td>Justificativa</td><td id="rv_just" style="white-space:pre-wrap;">—</td></tr>
+        </table>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" onclick="goStep(2)">← Voltar</button>
+          <button class="btn btn-primary" id="btnEnviar" onclick="enviarSolicitacao()">📨 Enviar Solicitação</button>
+        </div>
+      </div>
+
+      <!-- ── SUCCESS ── -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h2 class="success-title">Solicitação Enviada!</h2>
+        <div class="success-num" id="successNum">—</div>
+        <p class="success-msg">
+          Sua solicitação foi encaminhada à equipe de TI.<br>
+          Você receberá uma cópia no seu e-mail e será notificado sobre a decisão em breve.
+        </p>
+        <button class="btn btn-outline" style="margin-top:24px;" onclick="novaSolicitacao()">+ Nova Solicitação</button>
+      </div>
+
+    </div><!-- /form-card -->
+  </main>
+</div>
+
+<footer>Suporte TI — Cetec Palmas &nbsp;·&nbsp; Gestão de Equipamentos &nbsp;·&nbsp; <span id="anoFooter"></span></footer>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  ← SUBSTITUA COM SUAS CREDENCIAIS DO EMAILJS
+// ═══════════════════════════════════════════════════
+const EMAILJS_PUBLIC_KEY  = 'bLFbU7GNf8doxB-tQ'; // ← Account > API Keys
+const EMAILJS_SERVICE_ID  = 'service_c7tq8jl';  // ← Email Services
+const TEMPLATE_GESTOR     = 'modelo_mobile';    // ← Template p/ andressonmouzinho@sistemafieto.com.br
+const TEMPLATE_USUARIO    = 'modelo_mobile';    // ← Mesmo template por enquanto
+const EMAIL_GESTOR        = 'andressonmouzinho@sistemafieto.com.br';
+// ═══════════════════════════════════════════════════
+
+emailjs.init(EMAILJS_PUBLIC_KEY);
+
+let selectedEq  = '';
+let selectedUrg = '';
+let selectedUrgEmoji = '';
+let reqNumber   = '';
+
+// ── Gera número de solicitação ──
+function gerarNumero() {
+  const now  = new Date();
+  const yy   = now.getFullYear();
+  const mm   = String(now.getMonth()+1).padStart(2,'0');
+  const dd   = String(now.getDate()).padStart(2,'0');
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `SOLI-${yy}${mm}${dd}-${rand}`;
+}
+
+// ── Seleção de equipamento ──
+function selectEq(el, name) {
+  document.querySelectorAll('.eq-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedEq = name;
+}
+
+// ── Seleção de urgência ──
+function selectUrg(el, label, emoji) {
+  document.querySelectorAll('.urg-card').forEach(c => c.className = 'urg-card');
+  const map = {Baixa:'sel-baixa', Média:'sel-media', Alta:'sel-alta'};
+  el.classList.add(map[label]);
+  selectedUrg = label;
+  selectedUrgEmoji = emoji;
+}
+
+// ── Validações por step ──
+function validarStep(n) {
+  if (n === 1) {
+    const nome  = document.getElementById('f_nome').value.trim();
+    const email = document.getElementById('f_email').value.trim();
+    const setor = document.getElementById('f_setor').value.trim();
+    if (!nome)  { showModal('O campo <strong>Nome completo</strong> é obrigatório. Por favor, preencha antes de continuar.'); return false; }
+    if (!email || !email.includes('@')) { showModal('Informe um <strong>E-mail válido</strong> antes de continuar.'); return false; }
+    if (!setor) { showModal('O campo <strong>Setor / Departamento</strong> é obrigatório. Por favor, selecione uma opção.'); return false; }
+  }
+  if (n === 2) {
+    if (!selectedEq)  { showModal('Selecione o <strong>Tipo de Equipamento</strong> desejado antes de continuar.'); return false; }
+    const qtd = parseInt(document.getElementById('f_qtd').value);
+    if (!qtd || qtd < 1)  { showModal('O campo <strong>Quantidade</strong> é obrigatório. Informe ao menos 1 item.'); return false; }
+    if (qtd > 5) { showModal('A <strong>Quantidade máxima</strong> permitida por solicitação é de <strong>5 itens</strong>. Por favor, ajuste o valor.'); return false; }
+    if (!document.getElementById('f_justificativa').value.trim())
+      { showModal('O campo <strong>Justificativa</strong> é obrigatório. Descreva o motivo da solicitação.'); return false; }
+    if (!selectedUrg) { showModal('Selecione o <strong>Nível de Urgência</strong> da sua solicitação antes de continuar.'); return false; }
+  }
+  return true;
+}
+
+// ── Navegação entre steps ──
+function goStep(n) {
+  if (n > 1 && !validarStep(n-1)) return;
+  if (n === 3) {
+    reqNumber = gerarNumero();
+    preencherRevisao();
+  }
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('pane'+i).classList.toggle('active', i === n);
+    const sn = document.getElementById('sn'+i);
+    const sl = document.getElementById('sl'+i);
+    if (i < n)       { sn.className = 'step-num done'; sn.textContent = '✓'; sl.className = 'step-label done'; }
+    else if (i === n){ sn.className = 'step-num active'; sn.textContent = i; sl.className = 'step-label active'; }
+    else             { sn.className = 'step-num idle';   sn.textContent = i; sl.className = 'step-label idle'; }
+    if (i < 3) document.getElementById('line'+i).className = 'step-line' + (i < n ? ' done' : '');
+  }
+}
+
+// ── Preenche tela de revisão ──
+function preencherRevisao() {
+  document.getElementById('previewNum').textContent = reqNumber;
+  document.getElementById('rv_nome').textContent    = document.getElementById('f_nome').value;
+  document.getElementById('rv_email').textContent   = document.getElementById('f_email').value;
+  document.getElementById('rv_setor').textContent   = document.getElementById('f_setor').value;
+  document.getElementById('rv_unidade').textContent = document.getElementById('f_unidade').value || '—';
+  document.getElementById('rv_ramal').textContent   = document.getElementById('f_ramal').value || '—';
+  document.getElementById('rv_eq').textContent      = selectedEq;
+  document.getElementById('rv_qtd').textContent     = document.getElementById('f_qtd').value;
+  document.getElementById('rv_modelo').textContent  = document.getElementById('f_modelo').value || '—';
+  document.getElementById('rv_urg').textContent     = selectedUrgEmoji + ' ' + selectedUrg;
+  document.getElementById('rv_just').textContent    = document.getElementById('f_justificativa').value;
+}
+
+// ── Envio via EmailJS ──
+async function enviarSolicitacao() {
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const nome       = document.getElementById('f_nome').value;
+  const emailUser  = document.getElementById('f_email').value;
+  const setor      = document.getElementById('f_setor').value;
+  const unidade    = document.getElementById('f_unidade').value || '—';
+  const ramal      = document.getElementById('f_ramal').value   || '—';
+  const qtd        = document.getElementById('f_qtd').value;
+  const modelo     = document.getElementById('f_modelo').value  || '—';
+  const just       = document.getElementById('f_justificativa').value;
+  const dataHora   = new Date().toLocaleString('pt-BR');
+
+  const mensagemGestor = `
+🖥️ NOVA SOLICITAÇÃO DE EQUIPAMENTO — FIETO TI
+
+📋 Protocolo: ${reqNumber}
+📅 Data/Hora: ${dataHora}
+
+👤 SOLICITANTE
+• Nome: ${nome}
+• E-mail: ${emailUser}
+• Setor: ${setor}
+• Unidade: ${unidade}
+• Ramal: ${ramal}
+
+📦 EQUIPAMENTO
+• Tipo: ${selectedEq}
+• Quantidade: ${qtd}
+• Especificação: ${modelo}
+• Urgência: ${selectedUrgEmoji} ${selectedUrg}
+
+📝 JUSTIFICATIVA
+${just}
+
+---
+Responda este e-mail para notificar diretamente o solicitante.
+  `.trim();
+
+  const mensagemUsuario = `
+Olá, ${nome}!
+
+Sua solicitação foi recebida com sucesso pela equipe de TI do Cetec Palmas. Guarde o número do protocolo abaixo para acompanhamento.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📋 PROTOCOLO: ${reqNumber}
+━━━━━━━━━━━━━━━━━━━━━━━
+
+📅 Data/Hora: ${dataHora}
+
+👤 SEUS DADOS
+• Nome: ${nome}
+• Setor: ${setor}
+• Tipo de Atendimento: ${unidade}
+• Telefone: ${ramal || '—'}
+
+📦 EQUIPAMENTO SOLICITADO
+• Tipo: ${selectedEq}
+• Quantidade: ${qtd}
+• Especificação: ${modelo || '—'}
+• Urgência: ${selectedUrgEmoji} ${selectedUrg}
+
+📝 JUSTIFICATIVA
+${just}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+Você será notificado por e-mail assim que o técnico registrar uma resposta.
+Em caso de dúvidas, entre em contato com o Suporte TI.
+
+Atenciosamente,
+Andresson Mouzinho
+Suporte em TI - Cetec Palmas
+  `.trim();
+
+  const paramsGestor = {
+    numero_solicitacao : reqNumber,
+    nome_solicitante   : nome,
+    email_solicitante  : emailUser,
+    equipamento        : selectedEq,
+    name               : nome,
+    message            : mensagemGestor,
+    email_gestor       : EMAIL_GESTOR,
+    to_email           : EMAIL_GESTOR,
+  };
+
+  const paramsUsuario = {
+    numero_solicitacao : reqNumber,
+    nome_solicitante   : nome,
+    email_solicitante  : emailUser,
+    equipamento        : selectedEq,
+    name               : 'Suporte TI — Cetec Palmas',
+    message            : mensagemUsuario,
+    to_email           : emailUser,
+  };
+
+  try {
+    // Salva na planilha Google Sheets
+    await fetch('https://script.google.com/macros/s/AKfycbzrHRQsY76yYqyd69RVDLFCXZBRIB9ckfOWoEHy_wOzLDsJJQa-2Spn8V0EoNR7_qRT/exec', {
+      method: 'POST',
+      body: JSON.stringify({
+        action        : 'nova',
+        numero        : reqNumber,
+        data          : dataHora,
+        nome          : nome,
+        email         : emailUser,
+        telefone      : ramal,
+        setor         : setor,
+        atendimento   : unidade,
+        equipamento   : selectedEq,
+        quantidade    : qtd,
+        especificacao : modelo,
+        urgencia      : selectedUrgEmoji + ' ' + selectedUrg,
+        justificativa : just,
+      })
+    });
+    // Envia e-mail para o gestor
+    await emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_GESTOR, paramsGestor);
+    // Envia confirmação para o usuário
+    await emailjs.send(EMAILJS_SERVICE_ID, TEMPLATE_USUARIO, paramsUsuario);
+    mostrarSucesso();
+  } catch (err) {
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = '📨 Enviar Solicitação';
+    showModalErro(`Não foi possível enviar sua solicitação.<br><br>
+      Por favor, tente novamente em instantes. Se o problema persistir, entre em contato diretamente com o Suporte TI.<br><br>
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:#94a3b8;">Erro: ${err?.text || err?.message || 'Falha na comunicação com o servidor de e-mail'}</span>`);
+  }
+}
+
+function mostrarSucesso() {
+  document.querySelectorAll('.step-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('progressBar');
+  document.getElementById('successNum').textContent = reqNumber;
+  document.getElementById('successScreen').style.display = 'flex';
+}
+
+function novaSolicitacao() {
+  location.reload();
+}
+
+document.getElementById('anoFooter').textContent = new Date().getFullYear();
+</script>
+
+<!-- ── MODAL DE ERRO DE ENVIO ── -->
+<div class="modal-overlay" id="erroOverlay" onclick="fecharErro(event)">
+  <div class="modal-box">
+    <div class="modal-icon aviso">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="modal-title">Falha no envio</div>
+    <div class="modal-msg" id="erroMsg">—</div>
+    <button class="modal-btn erro" onclick="fecharErro()">Fechar</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div class="modal-title">Campo obrigatório</div>
+    <div class="modal-msg" id="modalMsg">—</div>
+    <button class="modal-btn" onclick="fecharModal()">Entendido</button>
+  </div>
+</div>
+
+<script>
+function showModal(msg) {
+  document.getElementById('modalMsg').innerHTML = msg;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function showModalErro(msg) {
+  document.getElementById('erroMsg').innerHTML = msg;
+  document.getElementById('erroOverlay').classList.add('show');
+}
+function fecharModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay'))
+    document.getElementById('modalOverlay').classList.remove('show');
+}
+function fecharErro(e) {
+  if (!e || e.target === document.getElementById('erroOverlay'))
+    document.getElementById('erroOverlay').classList.remove('show');
+}
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') {
+    fecharModal({target:document.getElementById('modalOverlay')});
+    fecharErro({target:document.getElementById('erroOverlay')});
+  }
+});
+</script>
+</body>
+</html>
